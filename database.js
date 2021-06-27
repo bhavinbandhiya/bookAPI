@@ -4,7 +4,7 @@ const books = [
         title: "Getting started with MERN",
         pubDate: "2021-07-07",
         language: "en",
-        numPagr: 250,
+        numPage: 250,
         author: [1, 2],
         publication:[1],
         category: ["tech","ptogrammming","education","thriller"]
@@ -13,6 +13,7 @@ const books = [
 ];
 
 const author = [
+    
     {
         id:1,
         name:"bhavin",
