@@ -14,13 +14,16 @@ const booky = express();
 //Configuration
 booky.use(express.json());
 
-mongoose.connect(process.env.MONGO_URL,{
+mongoose
+  .connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
-    useCreateIndex: true
-  }
-).then(() => console.log("connection done"));
+    useCreateIndex: true,
+  })
+  .then(() => console.log("connection established!!!!!!!"));
+
+
 
 /*
 Route           /
