@@ -1,4 +1,9 @@
+require("dotenv").config();
+
+
 const express = require("express");
+
+const mongoose = require("mongoose");
 
 // Database
 const database = require("./database");
@@ -8,6 +13,14 @@ const booky = express();
 
 //Configuration
 booky.use(express.json());
+
+mongoose.connect(process.env.MONGO_URL,{
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true
+  }
+).then(() => console.log("connection done"));
 
 /*
 Route           /
@@ -106,18 +119,18 @@ Parameter       name
 Methods         GET
 */
 
-booky.get("/author/:name",(req,res) =>{
+booky.get("/author/:name", (req, res) => {
   const getSpecificAuthor = database.author.filter(
     (autname) => autname.name === req.params.name
   );
 
-  if(getSpecificAuthor.length === 0){
-    return res.json({ 
+  if (getSpecificAuthor.length === 0) {
+    return res.json({
       error: `No book found for the author ${req.params.name}`
     });
   }
 
-  return res.json({author: getSpecificAuthor});
+  return res.json({ author: getSpecificAuthor });
 });
 
 /*
@@ -164,13 +177,13 @@ booky.get("/publications/:name", (req, res) => {
     (pubname) => pubname.name === req.params.name
   );
 
-  if(getSpecificPublication.length === 0){
-    return res.json({ 
+  if (getSpecificPublication.length === 0) {
+    return res.json({
       error: `No book found for the publicationname ${req.params.name}`
     });
   }
 
-  return res.json({publication: getSpecificPublication});
+  return res.json({ publication: getSpecificPublication });
 });
 
 /*
@@ -202,12 +215,12 @@ Parameter       NONE
 Methods         POST
 */
 
-booky.post("/book/add",(req, res) =>{
-  const {newBook} = req.body;
+booky.post("/book/add", (req, res) => {
+  const { newBook } = req.body;
 
   database.books.push(newBook);
 
-  return res.json({books:database.books});
+  return res.json({ books: database.books });
 });
 
 /*
@@ -218,12 +231,12 @@ Parameter       NONE
 Methods         POST
 */
 
-booky.post("/author/add",(req, res) =>{
-  const {newAuthor} = req.body;
+booky.post("/author/add", (req, res) => {
+  const { newAuthor } = req.body;
 
   database.author.push(newAuthor);
 
-  return res.json({authors:database.author});
+  return res.json({ authors: database.author });
 });
 
 /*
@@ -234,12 +247,12 @@ Parameter       NONE
 Methods         POST
 */
 
-booky.post("/publication/add",(req, res) =>{
-  const {newPublication} = req.body;
+booky.post("/publication/add", (req, res) => {
+  const { newPublication } = req.body;
 
   database.publication.push(newPublication);
 
-  return res.json({publication:database.publication});
+  return res.json({ publication: database.publication });
 });
 
 /*
@@ -250,15 +263,15 @@ Parameter       isbn
 Methods         PUT
 */
 
-booky.put("/book/update/title/:isbn",(req,res) => {
-  database.books.forEach((book) =>{
-    if(book.ISBN === req.params.isbn){
+booky.put("/book/update/title/:isbn", (req, res) => {
+  database.books.forEach((book) => {
+    if (book.ISBN === req.params.isbn) {
       book.title = req.body.newBookTitle;
       return;
     }
   });
 
-  return res.json({books:database.books});
+  return res.json({ books: database.books });
 });
 
 /*
@@ -269,20 +282,20 @@ Parameter       isbn
 Methods         PUT
 */
 
-booky.put("/book/update/author/:isbn/:authorID",(req,res) => {
+booky.put("/book/update/author/:isbn/:authorID", (req, res) => {
   //update book databse
-    database.books.forEach((book) =>{
-      if(book.ISBN === req.params.isbn) {
-        return book.author.push(parseInt(req.params.authorID));
-      }
-    });
+  database.books.forEach((book) => {
+    if (book.ISBN === req.params.isbn) {
+      return book.author.push(parseInt(req.params.authorID));
+    }
+  });
   //update author database
-  database.author.forEach((author) =>{
-    if(author.id === parseInt(req.params.authorID)) {
+  database.author.forEach((author) => {
+    if (author.id === parseInt(req.params.authorID)) {
       return author.books.push(req.params.isbn);
     }
   });
-  return res.json({books:database.books,author:database.author});
+  return res.json({ books: database.books, author: database.author });
 });
 
 /*
@@ -293,16 +306,31 @@ Parameter       name
 Methods         PUT
 */
 
-booky.put("/publication/update/:name",(req,res) => {
-  database.publication.forEach((publication) =>{
-    if(publication.name === req.params.name){
-     publication.name = req.body.newPublicationName;
+booky.put("/publication/update/:name", (req, res) => {
+  database.publication.forEach((publication) => {
+    if (publication.name === req.params.name) {
+      publication.name = req.body.newPublicationName;
       return;
     }
   });
 
-  return res.json({books:database.books});
+  return res.json({ books: database.books });
 });
 
+/*
+Route           /book/delete
+Description     Delete a book
+Access          PUBLIC
+Parameter       isbn
+Methods         DELEte
+*/
+booky.delete("/book/delete/:isbn", (req, res) => {
+  const updateBookDatabase = database.books.filter(
+    (book) => book.isbn !== req.params.isbn
+  );
+
+  database.books = updateBookDataBase;
+  return res.json({ books: database.books });
+});
 
 booky.listen(5000, () => console.log("Hey server is running!"));
