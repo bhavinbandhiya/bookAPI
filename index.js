@@ -6,7 +6,13 @@ const express = require("express");
 const mongoose = require("mongoose");
 
 // Database
-const database = require("./database");
+const database = require("./database/index");
+
+// Models
+const BookModel = require("./database/book");
+const AuthorModel = require("./database/author");
+const PublicationModel = require("./database/publication");
+
 
 // Initialization
 const booky = express();
@@ -33,8 +39,9 @@ Parameter       NONE
 Methods         GET
 */
 
-booky.get("/", (req, res) => {
-  return res.json({ books: database.books });
+booky.get("/", async (req, res) => {
+  const getAllBooks = await BookModel.find();
+  return res.json(getAllBooks);
 });
 
 /*
@@ -45,12 +52,15 @@ Parameter       isbn
 Methods         GET
 */
 
-booky.get("/is/:isbn", (req, res) => {
-  const getSpecificBook = database.books.filter(
-    (book) => book.ISBN === req.params.isbn
-  );
+booky.get("/is/:isbn", async (req, res) => {
 
-  if (getSpecificBook.length === 0) {
+  const getSpecificBook = await BookModel.findOne({ISBN: req.params.isbn});
+
+  // const getSpecificBook = database.books.filter(
+  //   (book) => book.ISBN === req.params.isbn
+  // );
+
+  if (!getSpecificBook) {
     return res.json({
       error: `No book found for the ISBN of ${req.params.isbn}`,
     });
@@ -67,12 +77,15 @@ Parameter       category
 Methods         GET
 */
 
-booky.get("/c/:category", (req, res) => {
-  const getSpecificBook = database.books.filter((book) =>
-    book.category.includes(req.params.category)
-  );
+booky.get("/c/:category", async (req, res) => {
 
-  if (getSpecificBook.length === 0) {
+  const getSpecificBook = await BookModel.findOne({category: req.params.category });
+
+  // const getSpecificBook = database.books.filter((book) =>
+  //   book.category.includes(req.params.category)
+  // );
+
+  if (!getSpecificBook) {
     return res.json({
       error: `No book found for the category of ${req.params.category}`,
     });
@@ -218,12 +231,13 @@ Parameter       NONE
 Methods         POST
 */
 
-booky.post("/book/add", (req, res) => {
+booky.post("/book/add", async (req, res) => {
   const { newBook } = req.body;
 
-  database.books.push(newBook);
+  // database.books.push(newBook);
+  const addNewBook = BookModel.create(newBook);
 
-  return res.json({ books: database.books });
+  return res.json({ books: addNewBook });
 });
 
 /*
